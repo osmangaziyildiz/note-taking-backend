@@ -23,7 +23,7 @@ A modern, secure note-taking API built with FastAPI and Firebase. This API provi
 - **Pydantic** - Data validation using Python type annotations
 - **Python 3.13** - Programming language
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 note-taking-backend/
@@ -57,7 +57,7 @@ note-taking-backend/
 └── README.md                  # This file
 ```
 
-### Installation
+## Installation
 
 1. **Clone the repository**
    ```bash
@@ -93,7 +93,7 @@ note-taking-backend/
    ```
 
 5. **Configure Firebase**
-   - Download your Firebase service account key (from https://console.cloud.google.com/projectselector2/iam-admin/serviceaccounts)
+   - Download your Firebase service account key (from Firebase Console -> Project Settings -> Service Accounts -> Generate new private key)
    - Place it in the project root as `serviceAccountKey.json`
    - Update `.env` file with your Firebase project details
 
@@ -234,8 +234,7 @@ This project follows **Clean Architecture** principles with a modular structure:
 | 422  | Validation Error - Invalid Input |
 | 500  | Internal Server Error |
 
-
-## 👨‍💻 Author
+## Author
 
 **Osmangazi YILDIZ**
 - GitHub: [@osmangaziyildiz](https://github.com/osmangaziyildiz)

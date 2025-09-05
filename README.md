@@ -2,7 +2,7 @@
 
 A modern, secure note-taking API built with FastAPI and Firebase. This API provides full CRUD operations for notes with user authentication and authorization.
 
-## 🚀 Features
+## Features
 
 - **User Authentication** - Firebase ID Token based authentication
 - **CRUD Operations** - Create, Read, Update, Delete notes
@@ -93,7 +93,7 @@ note-taking-backend/
    ```
 
 5. **Configure Firebase**
-   - Download your Firebase service account key
+   - Download your Firebase service account key (from https://console.cloud.google.com/projectselector2/iam-admin/serviceaccounts)
    - Place it in the project root as `serviceAccountKey.json`
    - Update `.env` file with your Firebase project details
 
@@ -147,8 +147,6 @@ Authorization: Bearer <your-firebase-id-token>
 - **GET** `/api/Notes` - Get all user's notes
 - **PUT** `/api/Notes/{note_id}` - Update a note
 - **DELETE** `/api/Notes/{note_id}` - Delete a note
-
-### Request/Response Format
 
 #### Success Response Example
 ```json

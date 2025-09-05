@@ -148,6 +148,8 @@ Authorization: Bearer <your-firebase-id-token>
 - **PUT** `/api/Notes/{note_id}` - Update a note
 - **DELETE** `/api/Notes/{note_id}` - Delete a note
 
+### Request/Response Format
+
 #### Success Response Example
 ```json
 {
@@ -206,12 +208,10 @@ This project follows **Clean Architecture** principles with a modular structure:
 
 ## Security Features
 
-- **Firebase Authentication** - Secure user authentication with ID tokens
-- **Authorization** - Users can only access their own data
-- **Input Validation** - All inputs are validated using Pydantic models
-- **Error Handling** - Standardized error responses without sensitive information
-- **CORS Configuration** - Configurable cross-origin policies
-- **Logging** - Comprehensive logging system for monitoring and debugging
+- **Secure Authentication** - Firebase ID token based authentication
+- **Data Protection** - Users can only access their own data
+- **Input Sanitization** - All inputs are validated and sanitized
+- **Error Security** - No sensitive information leaked in error responses
 
 ## Testing
 

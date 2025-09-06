@@ -18,6 +18,7 @@ class NoteService:
             note_data = note.dict()
             note_data.update({
                 "owner_uid": current_uid,
+                "tags": [],  # Automatically add empty tags list
                 "created_at": now,
                 "updated_at": now
             })
@@ -32,6 +33,8 @@ class NoteService:
                 title=created_note["title"],
                 content=created_note["content"],
                 owner_uid=created_note["owner_uid"],
+                is_favorite=created_note["is_favorite"],
+                tags=created_note["tags"],
                 created_at=created_note["created_at"].isoformat(),
                 updated_at=created_note["updated_at"].isoformat()
             )
@@ -58,6 +61,8 @@ class NoteService:
                     title=note_data["title"],
                     content=note_data["content"],
                     owner_uid=note_data["owner_uid"],
+                    is_favorite=note_data["is_favorite"],
+                    tags=note_data["tags"],
                     created_at=note_data["created_at"].isoformat(),
                     updated_at=note_data["updated_at"].isoformat()
                 )
@@ -96,6 +101,8 @@ class NoteService:
                 title=updated_note_data["title"],
                 content=updated_note_data["content"],
                 owner_uid=updated_note_data["owner_uid"],
+                is_favorite=updated_note_data["is_favorite"],
+                tags=updated_note_data["tags"],
                 created_at=updated_note_data["created_at"].isoformat(),
                 updated_at=updated_note_data["updated_at"].isoformat()
             )
@@ -128,3 +135,47 @@ class NoteService:
         except Exception as e:
             logging.error(f"Failed to delete note {note_id} for user {current_uid}. Error: {str(e)}")
             raise InternalServerError("Failed to delete note. Please try again.")
+
+    @staticmethod
+    async def toggle_favorite(note_id: str, current_uid: str) -> NoteResponse:
+        """Toggle favorite status of a note."""
+        try:
+            # Access nested collection: notes/{userId}/userNotes/{noteId}
+            doc_ref = db.collection(NOTES_COLLECTION).document(current_uid).collection(USER_NOTES_SUBCOLLECTION).document(note_id)
+            doc = doc_ref.get()
+            
+            if not doc.exists:
+                logging.warning(f"Note {note_id} not found for user {current_uid}")
+                raise NotFoundError("Note", note_id)
+            
+            # Toggle the favorite status
+            current_favorite = doc.to_dict()["is_favorite"]
+            new_favorite = not current_favorite
+            
+            doc_ref.update({
+                "is_favorite": new_favorite,
+                "updated_at": datetime.utcnow()
+            })
+            
+            # Get updated note data
+            updated_doc = doc_ref.get()
+            updated_note_data = updated_doc.to_dict()
+            updated_note = NoteResponse(
+                id=updated_doc.id,
+                title=updated_note_data["title"],
+                content=updated_note_data["content"],
+                owner_uid=updated_note_data["owner_uid"],
+                is_favorite=updated_note_data["is_favorite"],
+                tags=updated_note_data["tags"],
+                created_at=updated_note_data["created_at"].isoformat(),
+                updated_at=updated_note_data["updated_at"].isoformat()
+            )
+            
+            action = "added to" if new_favorite else "removed from"
+            logging.info(f"Note {note_id} {action} favorites for user: {current_uid}")
+            return updated_note
+        except (NotFoundError, ForbiddenError):
+            raise
+        except Exception as e:
+            logging.error(f"Failed to toggle favorite for note {note_id} and user {current_uid}. Error: {str(e)}")
+            raise InternalServerError("Failed to toggle favorite. Please try again.")

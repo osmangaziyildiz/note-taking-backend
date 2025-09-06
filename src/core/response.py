@@ -23,6 +23,8 @@ class NoteResponse(BaseModel):
     title: str
     content: str
     owner_uid: str
+    is_favorite: bool
+    tags: list[str]
     created_at: str
     updated_at: str
 

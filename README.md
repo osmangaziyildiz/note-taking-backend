@@ -149,10 +149,11 @@ Authorization: Bearer <your-firebase-id-token>
 - **GET** `/api/auth/verify` - Verify authentication token
 
 #### Notes
-- **POST** `/api/Notes` - Create a new note
-- **GET** `/api/Notes` - Get all user's notes
-- **PUT** `/api/Notes/{note_id}` - Update a note
-- **DELETE** `/api/Notes/{note_id}` - Delete a note
+- **POST** `/api/notes/` - Create a new note
+- **GET** `/api/notes/` - Get all user's notes
+- **PUT** `/api/notes/{note_id}` - Update a note
+- **DELETE** `/api/notes/{note_id}` - Delete a note
+- **PATCH** `/api/notes/{note_id}/favorite` - Toggle favorite status
 
 ### Request/Response Format
 
@@ -239,7 +240,13 @@ final headers = {
 ```dart
 // Get user's notes
 final response = await http.get(
-  Uri.parse('$baseUrl/api/Notes'),
+  Uri.parse('$baseUrl/api/notes/'),
+  headers: headers,
+);
+
+// Toggle favorite
+final favoriteResponse = await http.patch(
+  Uri.parse('$baseUrl/api/notes/$noteId/favorite'),
   headers: headers,
 );
 ```

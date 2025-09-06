@@ -91,7 +91,10 @@ class NoteService:
             if not update_data:
                 raise ValidationError("No fields to update")
 
-            update_data["updated_at"] = datetime.utcnow()
+            # Only update updated_at if content-related fields are being updated
+            if "title" in update_data or "content" in update_data:
+                update_data["updated_at"] = datetime.utcnow()
+            
             doc_ref.update(update_data)
             
             updated_doc = doc_ref.get()
@@ -153,8 +156,7 @@ class NoteService:
             new_favorite = not current_favorite
             
             doc_ref.update({
-                "is_favorite": new_favorite,
-                "updated_at": datetime.utcnow()
+                "is_favorite": new_favorite
             })
             
             # Get updated note data

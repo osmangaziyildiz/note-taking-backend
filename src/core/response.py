@@ -51,3 +51,34 @@ class NoteDeleteResponse(BaseModel):
     success: bool = True
     data: Optional[None] = None
     message: Optional[str] = None
+
+
+# Tag response models
+class TagResponse(BaseModel):
+    id: str
+    name: str
+    created_at: str
+
+
+class TagsListResponse(BaseModel):
+    success: bool = True
+    data: list[TagResponse]
+    message: Optional[str] = None
+
+
+class TagCreateResponse(BaseModel):
+    success: bool = True
+    data: TagResponse
+    message: Optional[str] = None
+
+
+class TagUpdateResponse(BaseModel):
+    success: bool = True
+    data: TagResponse
+    message: Optional[str] = None
+
+
+class TagDeleteResponse(BaseModel):
+    success: bool = True
+    data: Optional[None] = None
+    message: Optional[str] = None

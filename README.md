@@ -115,16 +115,20 @@ note-taking-backend/
    ```
 
 7. **Access the API**
-   - API: http://127.0.0.1:8000
-   - Documentation: http://127.0.0.1:8000/docs
-   - Health Check: http://127.0.0.1:8000/health
+   - **Local Development:**
+     - API: http://127.0.0.1:8000
+     - Documentation: http://127.0.0.1:8000/docs
+     - Health Check: http://127.0.0.1:8000/health
+   - **Production (Live):**
+     - API: https://note-taking-backend-04jp.onrender.com
+     - Documentation: https://note-taking-backend-04jp.onrender.com/docs
+     - Health Check: https://note-taking-backend-04jp.onrender.com/health
 
 ## API Documentation
 
 ### Base URL
-```
-http://127.0.0.1:8000
-```
+- **Local Development:** `http://127.0.0.1:8000`
+- **Production:** `https://note-taking-backend-04jp.onrender.com`
 
 ### Authentication
 All endpoints (except health check) require authentication using Firebase ID Token in the Authorization header:
@@ -213,13 +217,39 @@ This project follows **Clean Architecture** principles with a modular structure:
 - **Input Sanitization** - All inputs are validated and sanitized
 - **Error Security** - No sensitive information leaked in error responses
 
+## Flutter Integration
+
+### Base URL Configuration
+```dart
+// In your Flutter app
+const String baseUrl = 'https://note-taking-backend-04jp.onrender.com';
+```
+
+### HTTP Headers
+```dart
+final headers = {
+  'Authorization': 'Bearer $firebaseToken',
+  'Content-Type': 'application/json',
+};
+```
+
+### Example API Call
+```dart
+// Get user's notes
+final response = await http.get(
+  Uri.parse('$baseUrl/api/Notes'),
+  headers: headers,
+);
+```
+
 ## Testing
 
 ### Using Swagger UI
-1. Go to http://127.0.0.1:8000/docs
-2. Click "Authorize" button
-3. Enter your Firebase ID token
-4. Test the endpoints
+1. **Local Development:** Go to http://127.0.0.1:8000/docs
+2. **Production:** Go to https://note-taking-backend-04jp.onrender.com/docs
+3. Click "Authorize" button
+4. Enter your Firebase ID token
+5. Test the endpoints
 
 ## Error Codes
 

@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     # Firebase Configuration
     FIREBASE_SERVICE_ACCOUNT_KEY_PATH: str = os.getenv("FIREBASE_SERVICE_ACCOUNT_KEY_PATH", "./serviceAccountKey.json")
+    FIREBASE_SERVICE_ACCOUNT_KEY: str = os.getenv("FIREBASE_SERVICE_ACCOUNT_KEY", "")
     FIREBASE_PROJECT_ID: str = os.getenv("FIREBASE_PROJECT_ID", "")
     
     # App Settings
@@ -18,6 +19,14 @@ class Settings(BaseSettings):
     @property
     def firebase_credentials_path(self) -> Path:
         return Path(self.FIREBASE_SERVICE_ACCOUNT_KEY_PATH).resolve()
+    
+    @property
+    def firebase_credentials_dict(self) -> dict:
+        """Get Firebase credentials as dictionary from environment variable."""
+        if self.FIREBASE_SERVICE_ACCOUNT_KEY:
+            import json
+            return json.loads(self.FIREBASE_SERVICE_ACCOUNT_KEY)
+        return None
 
     class Config:
         env_file = ".env"

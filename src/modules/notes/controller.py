@@ -34,6 +34,16 @@ async def get_user_notes(current_uid: str = Depends(AuthService.get_current_user
         message=f"Retrieved {len(notes)} notes"
     )
 
+# Get a specific note by ID
+@router.get("/{note_id}", response_model=NoteUpdateResponse)
+async def get_note_by_id(note_id: str, current_uid: str = Depends(AuthService.get_current_user_uid)):
+    """Get a specific note by ID. Only the note owner can access it."""
+    note = await NoteService.get_note_by_id(note_id, current_uid)
+    return NoteUpdateResponse(
+        data=note,
+        message="Note retrieved successfully"
+    )
+
 # Update a note
 @router.put("/{note_id}", response_model=NoteUpdateResponse)
 async def update_note(note_id: str, note_update: NoteUpdate, current_uid: str = Depends(AuthService.get_current_user_uid)):

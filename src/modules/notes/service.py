@@ -75,6 +75,38 @@ class NoteService:
             raise InternalServerError("Failed to retrieve notes. Please try again.")
 
     @staticmethod
+    async def get_note_by_id(note_id: str, current_uid: str) -> NoteResponse:
+        """Get a specific note by ID for the logged in user."""
+        try:
+            # Access nested collection: notes/{userId}/userNotes/{noteId}
+            doc_ref = db.collection(NOTES_COLLECTION).document(current_uid).collection(USER_NOTES_SUBCOLLECTION).document(note_id)
+            doc = doc_ref.get()
+            
+            if not doc.exists:
+                logging.warning(f"Note {note_id} not found for user {current_uid}")
+                raise NotFoundError("Note", note_id)
+            
+            note_data = doc.to_dict()
+            note_response = NoteResponse(
+                id=doc.id,
+                title=note_data["title"],
+                content=note_data["content"],
+                owner_uid=note_data["owner_uid"],
+                is_favorite=note_data["is_favorite"],
+                tags=note_data["tags"],
+                created_at=note_data["created_at"].isoformat(),
+                updated_at=note_data["updated_at"].isoformat()
+            )
+            
+            logging.info(f"Retrieved note {note_id} for user: {current_uid}")
+            return note_response
+        except (NotFoundError, ForbiddenError):
+            raise
+        except Exception as e:
+            logging.error(f"Failed to retrieve note {note_id} for user {current_uid}. Error: {str(e)}")
+            raise InternalServerError("Failed to retrieve note. Please try again.")
+
+    @staticmethod
     async def update_note(note_id: str, note_update: NoteUpdate, current_uid: str) -> NoteResponse:
         """Update the note with the specified ID."""
         try:

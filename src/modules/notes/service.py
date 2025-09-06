@@ -7,6 +7,7 @@ from src.core.error_handling import NotFoundError, ForbiddenError, ValidationErr
 import logging
 
 NOTES_COLLECTION = "notes"
+USER_NOTES_SUBCOLLECTION = "userNotes"
 
 class NoteService:
     @staticmethod
@@ -21,7 +22,9 @@ class NoteService:
                 "updated_at": now
             })
 
-            update_time, doc_ref = db.collection(NOTES_COLLECTION).add(note_data)
+            # Create note in nested collection: notes/{userId}/userNotes/{noteId}
+            user_notes_ref = db.collection(NOTES_COLLECTION).document(current_uid).collection(USER_NOTES_SUBCOLLECTION)
+            update_time, doc_ref = user_notes_ref.add(note_data)
             created_note = doc_ref.get().to_dict()
             
             note_response = NoteResponse(
@@ -44,7 +47,10 @@ class NoteService:
         """Get all notes for the logged in user."""
         try:
             notes = []
-            docs = db.collection(NOTES_COLLECTION).where("owner_uid", "==", current_uid).stream()
+            # Query nested collection: notes/{userId}/userNotes
+            user_notes_ref = db.collection(NOTES_COLLECTION).document(current_uid).collection(USER_NOTES_SUBCOLLECTION)
+            docs = user_notes_ref.stream()
+            
             for doc in docs:
                 note_data = doc.to_dict()
                 note_response = NoteResponse(
@@ -67,18 +73,15 @@ class NoteService:
     async def update_note(note_id: str, note_update: NoteUpdate, current_uid: str) -> NoteResponse:
         """Update the note with the specified ID."""
         try:
-            doc_ref = db.collection(NOTES_COLLECTION).document(note_id)
+            # Access nested collection: notes/{userId}/userNotes/{noteId}
+            doc_ref = db.collection(NOTES_COLLECTION).document(current_uid).collection(USER_NOTES_SUBCOLLECTION).document(note_id)
             doc = doc_ref.get()
             
             if not doc.exists:
                 logging.warning(f"Note {note_id} not found for user {current_uid}")
                 raise NotFoundError("Note", note_id)
             
-            note_data = doc.to_dict()
-            if note_data["owner_uid"] != current_uid:
-                logging.warning(f"User {current_uid} not authorized to update note {note_id}")
-                raise ForbiddenError("You are not authorized to update this note")
-                
+            # No need to check owner_uid since we're already in the user's collection
             update_data = note_update.dict(exclude_unset=True)
             if not update_data:
                 raise ValidationError("No fields to update")
@@ -87,13 +90,14 @@ class NoteService:
             doc_ref.update(update_data)
             
             updated_doc = doc_ref.get()
+            updated_note_data = updated_doc.to_dict()
             updated_note = NoteResponse(
                 id=updated_doc.id,
-                title=updated_doc.to_dict()["title"],
-                content=updated_doc.to_dict()["content"],
-                owner_uid=updated_doc.to_dict()["owner_uid"],
-                created_at=updated_doc.to_dict()["created_at"].isoformat(),
-                updated_at=updated_doc.to_dict()["updated_at"].isoformat()
+                title=updated_note_data["title"],
+                content=updated_note_data["content"],
+                owner_uid=updated_note_data["owner_uid"],
+                created_at=updated_note_data["created_at"].isoformat(),
+                updated_at=updated_note_data["updated_at"].isoformat()
             )
             
             logging.info(f"Updated note {note_id} for user: {current_uid}")
@@ -108,17 +112,15 @@ class NoteService:
     async def delete_note(note_id: str, current_uid: str) -> None:
         """Delete the note with the specified ID."""
         try:
-            doc_ref = db.collection(NOTES_COLLECTION).document(note_id)
+            # Access nested collection: notes/{userId}/userNotes/{noteId}
+            doc_ref = db.collection(NOTES_COLLECTION).document(current_uid).collection(USER_NOTES_SUBCOLLECTION).document(note_id)
             doc = doc_ref.get()
 
             if not doc.exists:
                 logging.warning(f"Note {note_id} not found for user {current_uid}")
                 raise NotFoundError("Note", note_id)
 
-            if doc.to_dict()["owner_uid"] != current_uid:
-                logging.warning(f"User {current_uid} not authorized to delete note {note_id}")
-                raise ForbiddenError("You are not authorized to delete this note")
-                
+            # No need to check owner_uid since we're already in the user's collection
             doc_ref.delete()
             logging.info(f"Deleted note {note_id} for user: {current_uid}")
         except (NotFoundError, ForbiddenError):

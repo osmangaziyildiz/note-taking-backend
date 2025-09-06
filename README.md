@@ -130,6 +130,8 @@ note-taking-backend/
 - **Local Development:** `http://127.0.0.1:8000`
 - **Production:** `https://note-taking-backend-04jp.onrender.com`
 
+> **Note:** The root URL (`/`) only returns a welcome message. To access the interactive API documentation and testing interface, you must navigate to the `/docs` endpoint. This is the standard FastAPI behavior where Swagger UI is served at the `/docs` path.
+
 ### Authentication
 All endpoints (except health check) require authentication using Firebase ID Token in the Authorization header:
 

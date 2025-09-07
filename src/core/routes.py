@@ -2,7 +2,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from src.modules.notes.controller import router as notes_router
 from src.modules.auth.controller import router as auth_router
-from src.modules.tags.controller import router as tags_router
 from src.core.error_handling import (
     CustomHTTPException,
     validation_exception_handler,
@@ -26,8 +25,6 @@ def register_routes(app: FastAPI) -> None:
     # Notes routes
     app.include_router(notes_router)
     
-    # Tags routes
-    app.include_router(tags_router)
     
 
 

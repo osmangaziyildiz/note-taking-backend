@@ -1,4 +1,5 @@
-from datetime import datetime
+
+from firebase_admin.firestore import SERVER_TIMESTAMP
 from typing import List
 from src.core.firebase import db
 from src.modules.tags.models import TagCreate, TagUpdate, TagInDB
@@ -14,10 +15,9 @@ class TagService:
     async def create_tag(tag: TagCreate, current_uid: str) -> TagResponse:
         """Create a new tag."""
         try:
-            now = datetime.utcnow()
             tag_data = tag.dict()
             tag_data.update({
-                "created_at": now
+                "created_at": SERVER_TIMESTAMP
             })
 
             # Create tag in nested collection: userTags/{userId}/tags/{tagId}

@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List
+from firebase_admin.firestore import SERVER_TIMESTAMP
 from src.core.firebase import db
 from src.modules.notes.models import NoteCreate, NoteUpdate, NoteInDB
 from src.core.response import NoteResponse
@@ -14,16 +15,15 @@ class NoteService:
     async def create_note(note: NoteCreate, current_uid: str) -> NoteResponse:
         """Create a new note."""
         try:
-            now = datetime.utcnow()
             note_data = note.dict()
             note_id = note_data.pop("id")  # Extract ID from request data
             note_data.update({
                 "owner_uid": current_uid,
                 "tags": [],  # Automatically add empty tags list
-                "created_at": now,
-                "updated_at": now,
-                "sync_status": "pending",
-                "last_synced_at": None
+                "created_at": SERVER_TIMESTAMP,
+                "updated_at": SERVER_TIMESTAMP,
+                "sync_status": "synced",
+                "last_synced_at": SERVER_TIMESTAMP     
             })
 
             # Create note in nested collection with client-provided ID: notes/{userId}/userNotes/{noteId}
@@ -46,7 +46,7 @@ class NoteService:
                 is_favorite=created_note["is_favorite"],
                 tags=created_note["tags"],
                 sync_status=created_note["sync_status"],
-                last_synced_at=created_note["last_synced_at"].isoformat() if created_note["last_synced_at"] else None,
+                last_synced_at=created_note["last_synced_at"].isoformat(),
                 created_at=created_note["created_at"].isoformat(),
                 updated_at=created_note["updated_at"].isoformat()
             )
@@ -78,7 +78,7 @@ class NoteService:
                     is_favorite=note_data["is_favorite"],
                     tags=note_data["tags"],
                     sync_status=note_data["sync_status"],
-                    last_synced_at=note_data["last_synced_at"].isoformat() if note_data["last_synced_at"] else None,
+                    last_synced_at=note_data["last_synced_at"].isoformat(),
                     created_at=note_data["created_at"].isoformat(),
                     updated_at=note_data["updated_at"].isoformat()
                 )
@@ -111,7 +111,7 @@ class NoteService:
                 is_favorite=note_data["is_favorite"],
                 tags=note_data["tags"],
                 sync_status=note_data["sync_status"],
-                last_synced_at=note_data["last_synced_at"].isoformat() if note_data["last_synced_at"] else None,
+                last_synced_at=note_data["last_synced_at"].isoformat(),
                 created_at=note_data["created_at"].isoformat(),
                 updated_at=note_data["updated_at"].isoformat()
             )
@@ -143,7 +143,7 @@ class NoteService:
 
             # Only update updated_at if content-related fields are being updated
             if "title" in update_data or "content" in update_data:
-                update_data["updated_at"] = datetime.utcnow()
+                update_data["updated_at"] = SERVER_TIMESTAMP
             
             doc_ref.update(update_data)
             
@@ -157,7 +157,7 @@ class NoteService:
                 is_favorite=updated_note_data["is_favorite"],
                 tags=updated_note_data["tags"],
                 sync_status=updated_note_data["sync_status"],
-                last_synced_at=updated_note_data["last_synced_at"].isoformat() if updated_note_data["last_synced_at"] else None,
+                last_synced_at=updated_note_data["last_synced_at"].isoformat(),
                 created_at=updated_note_data["created_at"].isoformat(),
                 updated_at=updated_note_data["updated_at"].isoformat()
             )
@@ -222,7 +222,7 @@ class NoteService:
                 is_favorite=updated_note_data["is_favorite"],
                 tags=updated_note_data["tags"],
                 sync_status=updated_note_data["sync_status"],
-                last_synced_at=updated_note_data["last_synced_at"].isoformat() if updated_note_data["last_synced_at"] else None,
+                last_synced_at=updated_note_data["last_synced_at"].isoformat(),
                 created_at=updated_note_data["created_at"].isoformat(),
                 updated_at=updated_note_data["updated_at"].isoformat()
             )

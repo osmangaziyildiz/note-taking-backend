@@ -25,6 +25,8 @@ class NoteResponse(BaseModel):
     owner_uid: str
     is_favorite: bool
     tags: list[str]
+    sync_status: str
+    last_synced_at: Optional[str] = None
     created_at: str
     updated_at: str
 

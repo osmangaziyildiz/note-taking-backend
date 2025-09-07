@@ -21,7 +21,9 @@ class NoteService:
                 "owner_uid": current_uid,
                 "tags": [],  # Automatically add empty tags list
                 "created_at": now,
-                "updated_at": now
+                "updated_at": now,
+                "sync_status": "pending",
+                "last_synced_at": None
             })
 
             # Create note in nested collection with client-provided ID: notes/{userId}/userNotes/{noteId}
@@ -43,6 +45,8 @@ class NoteService:
                 owner_uid=created_note["owner_uid"],
                 is_favorite=created_note["is_favorite"],
                 tags=created_note["tags"],
+                sync_status=created_note["sync_status"],
+                last_synced_at=created_note["last_synced_at"].isoformat() if created_note["last_synced_at"] else None,
                 created_at=created_note["created_at"].isoformat(),
                 updated_at=created_note["updated_at"].isoformat()
             )
@@ -73,6 +77,8 @@ class NoteService:
                     owner_uid=note_data["owner_uid"],
                     is_favorite=note_data["is_favorite"],
                     tags=note_data["tags"],
+                    sync_status=note_data["sync_status"],
+                    last_synced_at=note_data["last_synced_at"].isoformat() if note_data["last_synced_at"] else None,
                     created_at=note_data["created_at"].isoformat(),
                     updated_at=note_data["updated_at"].isoformat()
                 )
@@ -104,6 +110,8 @@ class NoteService:
                 owner_uid=note_data["owner_uid"],
                 is_favorite=note_data["is_favorite"],
                 tags=note_data["tags"],
+                sync_status=note_data["sync_status"],
+                last_synced_at=note_data["last_synced_at"].isoformat() if note_data["last_synced_at"] else None,
                 created_at=note_data["created_at"].isoformat(),
                 updated_at=note_data["updated_at"].isoformat()
             )
@@ -148,6 +156,8 @@ class NoteService:
                 owner_uid=updated_note_data["owner_uid"],
                 is_favorite=updated_note_data["is_favorite"],
                 tags=updated_note_data["tags"],
+                sync_status=updated_note_data["sync_status"],
+                last_synced_at=updated_note_data["last_synced_at"].isoformat() if updated_note_data["last_synced_at"] else None,
                 created_at=updated_note_data["created_at"].isoformat(),
                 updated_at=updated_note_data["updated_at"].isoformat()
             )
@@ -211,6 +221,8 @@ class NoteService:
                 owner_uid=updated_note_data["owner_uid"],
                 is_favorite=updated_note_data["is_favorite"],
                 tags=updated_note_data["tags"],
+                sync_status=updated_note_data["sync_status"],
+                last_synced_at=updated_note_data["last_synced_at"].isoformat() if updated_note_data["last_synced_at"] else None,
                 created_at=updated_note_data["created_at"].isoformat(),
                 updated_at=updated_note_data["updated_at"].isoformat()
             )

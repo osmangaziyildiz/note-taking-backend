@@ -10,7 +10,7 @@ class NoteBase(BaseModel):
 
 
 class NoteCreate(NoteBase):
-    pass
+    id: str = Field(..., min_length=1, description="Note ID provided by client")
 
 
 class NoteUpdate(BaseModel):

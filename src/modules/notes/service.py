@@ -16,6 +16,7 @@ class NoteService:
         try:
             now = datetime.utcnow()
             note_data = note.dict()
+            note_id = note_data.pop("id")  # Extract ID from request data
             note_data.update({
                 "owner_uid": current_uid,
                 "tags": [],  # Automatically add empty tags list
@@ -23,13 +24,20 @@ class NoteService:
                 "updated_at": now
             })
 
-            # Create note in nested collection: notes/{userId}/userNotes/{noteId}
+            # Create note in nested collection with client-provided ID: notes/{userId}/userNotes/{noteId}
             user_notes_ref = db.collection(NOTES_COLLECTION).document(current_uid).collection(USER_NOTES_SUBCOLLECTION)
-            update_time, doc_ref = user_notes_ref.add(note_data)
+            doc_ref = user_notes_ref.document(note_id)
+            
+            # Check if note with this ID already exists
+            if doc_ref.get().exists:
+                logging.warning(f"Note with ID {note_id} already exists for user {current_uid}")
+                raise ValidationError("Note with this ID already exists")
+            
+            doc_ref.set(note_data)
             created_note = doc_ref.get().to_dict()
             
             note_response = NoteResponse(
-                id=doc_ref.id,
+                id=note_id,
                 title=created_note["title"],
                 content=created_note["content"],
                 owner_uid=created_note["owner_uid"],
@@ -39,8 +47,10 @@ class NoteService:
                 updated_at=created_note["updated_at"].isoformat()
             )
             
-            logging.info(f"Created new note {doc_ref.id} for user: {current_uid}")
+            logging.info(f"Created new note {note_id} for user: {current_uid}")
             return note_response
+        except ValidationError:
+            raise
         except Exception as e:
             logging.error(f"Failed to create note for user {current_uid}. Error: {str(e)}")
             raise InternalServerError("Failed to create note. Please try again.")
